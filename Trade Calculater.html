@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trade Profit/Loss Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 2rem auto; }
+    label { display: block; margin-top: 1rem; }
+    input, button { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+    .result { margin-top: 1.5rem; padding: 1rem; background: #f4f4f4; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Trade Profit/Loss Calculator</h2>
+
+  <label>
+    Account Size (USDT)
+    <input type="number" id="account" value="100" step="any">
+  </label>
+
+  <label>
+    Entry Price
+    <input type="number" id="entry" value="0.15000" step="any">
+  </label>
+
+  <label>
+    Take Profit (TP)
+    <input type="number" id="tp" value="0.15300" step="any">
+  </label>
+
+  <label>
+    Stop Loss (SL)
+    <input type="number" id="sl" value="0.14900" step="any">
+  </label>
+
+  <label>
+    Leverage (e.g. 1 for no leverage, 5 for 5×)
+    <input type="number" id="leverage" value="5" step="any" min="1">
+  </label>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="result" id="result" style="display:none;">
+    <p><strong>Effective Capital:</strong> <span id="effective"></span> USDT</p>
+    <p><strong>Position Size:</strong> <span id="size"></span> coins</p>
+    <p><strong>Profit if TP hits:</strong> <span id="profit"></span> USDT (<span id="profitPct"></span>%)</p>
+    <p><strong>Loss if SL hits:</strong> <span id="loss"></span> USDT (<span id="lossPct"></span>%)</p>
+    <p><strong>Risk-Reward Ratio:</strong> <span id="rr"></span> : 1</p>
+  </div>
+
+  <script>
+    function calculate() {
+      const acct    = parseFloat(document.getElementById('account').value);
+      const entry   = parseFloat(document.getElementById('entry').value);
+      const tp      = parseFloat(document.getElementById('tp').value);
+      const sl      = parseFloat(document.getElementById('sl').value);
+      const lev     = parseFloat(document.getElementById('leverage').value);
+
+      // Effective capital with leverage
+      const effective = acct * lev;
+
+      // Position size in coins
+      const size = effective / entry;
+
+      // Per-coin profit & loss
+      const profitPerCoin = tp - entry;
+      const lossPerCoin   = entry - sl;
+
+      // Total profit & loss
+      const totalProfit = size * profitPerCoin;
+      const totalLoss   = size * lossPerCoin;
+
+      // Percentages relative to original account
+      const profitPct = (totalProfit / acct * 100).toFixed(2);
+      const lossPct   = (totalLoss   / acct * 100).toFixed(2);
+
+      // Risk-Reward Ratio
+      const rr = (profitPerCoin / lossPerCoin).toFixed(2);
+
+      // Display results
+      document.getElementById('effective').innerText = effective.toFixed(2);
+      document.getElementById('size').innerText      = size.toFixed(2);
+      document.getElementById('profit').innerText    = totalProfit.toFixed(2);
+      document.getElementById('loss').innerText      = totalLoss.toFixed(2);
+      document.getElementById('profitPct').innerText = profitPct;
+      document.getElementById('lossPct').innerText   = lossPct;
+      document.getElementById('rr').innerText        = rr;
+
+      document.getElementById('result').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

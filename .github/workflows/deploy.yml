@@ -7,47 +7,28 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
-    permissions: # Added permissions block for GITHUB_TOKEN
-      contents: write # Allows the action to push to the gh-pages branch
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4 # Updated to v4 (latest as of mid-2024)
-
-      # Optional: Configure Git if you prefer explicit committer info,
-      # but peaceiris/actions-gh-pages usually handles this.
-      # - name: Configure Git
-      #   run: |
-      #     git config --global user.name "GitHub Actions Bot"
-      #     git config --global user.email "actions@github.com" # Or your preferred bot email
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # Updated to v4
+        uses: actions/setup-node@v4
         with:
-          node-version: '18' # Or your preferred/project's Node version
-          cache: 'npm' # Added caching for npm dependencies
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci # Recommended over npm install for CI for cleaner, more reliable builds
+        run: npm install # Changed back from npm ci
 
       - name: Build React App
         run: npm run build
-        # If your app has a specific base path (e.g., /repo-name/),
-        # you might need to set PUBLIC_URL here:
         # env:
-        #   PUBLIC_URL: /${{ github.event.repository.name }} # Or your specific base path
+        #   PUBLIC_URL: /${{ github.event.repository.name }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # Using the built-in token
-          publish_dir: ./build # Changed to 'build' (default for Create React App)
-                               # Change to './dist' if your project uses that
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # Or ./dist if that's your output folder
           publish_branch: gh-pages
-          # Optional: Add a commit message
-          # commit_message: ${{ github.event.head_commit.message }}
-          # Optional: Keep history of the gh-pages branch
-          # keep_files: false # Set to true if you want to keep old files
-          # Optional: User to associate with the commit
-          # user_name: 'github-actions[bot]'
-          # user_email: 'github-actions[bot]@users.noreply.github.com'
-          # Optional: If deploying to a custom domain, specify it here
-          # cname: your.custom.domain.com
